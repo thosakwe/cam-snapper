@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>cam-snapper demo</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+    <link rel="import" href="../../iron-icon/iron-icon.html">
+    <link rel="import" href="../../iron-icons/av-icons.html">
+    <link rel="import" href="../../iron-icons/iron-icons.html">
+    <link rel="import" href="../../paper-button/paper-button.html">
+    <link rel="import" href="../../paper-checkbox/paper-checkbox.html">
+    <link rel="import" href="../cam-snapper.html">
+
+    <custom-style>
+        <style is="custom-style" include="demo-pages-shared-styles">
+
+        </style>
+    </custom-style>
+</head>
+<body>
+<dom-module id="snapper-example">
+    <template>
+        <style is="custom-style">
+            #deleter {
+                margin-top: 1em;
+
+            }
+
+            img, video {
+                width: 100%;
+            }
+
+            paper-button {
+                color: #fff;
+                width: 100%;
+            }
+
+            [primary] {
+                background-color: var(--primary-color);
+            }
+
+            [red] {
+                background-color: var(--error-color);
+            }
+        </style>
+        <div hidden$="[[!_showMedia(image, recording)]]">
+            <b>Captured Media</b>
+            <i hidden$="[[!video]]">(Click video to pause/play.)</i>
+            <br><br>
+            <img hidden$="[[!_showImage(image)]]" src$="[[image]]" alt="Captured Image">
+            <video id="video" on-tap="_toggleVideo" hidden$="[[_showImage(image)]]" src$="[[image]]" autoplay></video>
+        </div>
+        <cam-snapper id="snapper" on-photo="_handleBlob" on-unsupported="_handleUnsupported" on-video="_handleBlob"
+                     facing-mode="environment"
+                     recording="{{recording}}" audio="[[video]]" video="[[video]]"></cam-snapper>
+        <br><br>
+        <paper-checkbox checked="{{video}}" disabled="[[recording]]"></paper-checkbox>
+        Record Video
+        <br><br>
+        <paper-button on-tap="_record" hidden$="[[recording]]" red raised>
+            <iron-icon icon="av:fiber-manual-record"></iron-icon>
+            Record
+        </paper-button>
+        <paper-button on-tap="_stop" hidden$="[[!recording]]" primary raised>
+            <iron-icon icon="av:stop"></iron-icon>
+            Finish
+        </paper-button>
+        <paper-button id="deleter" on-tap="_delete" hidden$="[[!image]]" primary raised>
+            <iron-icon icon="delete"></iron-icon>
+            Delete
+        </paper-button>
+    </template>
+    <script>
+        Polymer({
+            is: 'snapper-example',
+            properties: {
+                _playing: {
+                    type: Boolean,
+                    value: false
+                },
+                image: {
+                    type: String,
+                    value: ''
+                },
+                recording: {
+                    type: Boolean,
+                    value: false
+                },
+                video: {
+                    type: Boolean,
+                    value: false
+                }
+            },
+            _delete: function () {
+                if (!this.image) return true;
+                if (window.confirm('Delete currently-saved media?')) {
+                    this.image = '';
+                    this._playing = false;
+                    return true;
+                } else return false;
+            },
+            _handleBlob: function (e) {
+                this.image = URL.createObjectURL(e.detail);
+                this._playing = true;
+            },
+            _handleUnsupported: function (e) {
+                alert('cam-snapper unsupported!');
+                console.error('cam-snapper unsupported', e.detail);
+            },
+            _record: function () {
+                if (this._delete())
+                    this.$.snapper.start();
+            },
+            _showImage: function (image) {
+                return image && !this.video;
+            },
+            _showMedia: function (image, recording) {
+                return image && !recording;
+            },
+            _stop: function () {
+                this.$.snapper.stop();
+            },
+            _toggleVideo: function () {
+                if (this._playing) {
+                    this._playing = false;
+                    this.$.video.pause();
+                } else {
+                    this._playing = true;
+                    this.$.video.play();
+                }
+            },
+            ready: function () {
+                this.$.video.addEventListener('stop', function () {
+                    this.$.video.currentTime = 0;
+                }.bind(this));
+            }
+        })
+    </script>
+</dom-module>
+<div class="vertical-section-container centered">
+    <h3>Live cam-snapper</h3>
+    <demo-snippet>
+        <template>
+            <snapper-example></snapper-example>
+        </template>
+    </demo-snippet>
+</div>
+<div class="vertical-section-container centered">
+    <h3>Basic cam-snapper demo</h3>
+    <demo-snippet>
+        <template>
+            <cam-snapper></cam-snapper>
+        </template>
+    </demo-snippet>
+</div>
+</body>
+</html>

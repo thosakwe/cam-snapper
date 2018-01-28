@@ -1,6 +1,7 @@
 # \<cam-snapper\>
+[![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/thosakwe/cam-snapper)
 
-Polymer Element that records photo or video from the device&#39;s camera.
+Polymer **Hybrid** Element that records photo or video from the device&#39;s camera.
 
 ## Install the Polymer-CLI
 

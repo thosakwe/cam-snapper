@@ -1,0 +1,40 @@
+{
+  "name": "cam-snapper",
+  "version": "1.0.0",
+  "description": "Polymer Element that records photo or video from the device's camera.",
+  "main": "cam-snapper.html",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "bower": "^1.8.2",
+    "polymer-cli": "^1.5.7"
+  },
+  "devDependencies": {
+    "http-server": "^0.11.1"
+  },
+  "scripts": {
+    "build": "polymer build --bundle",
+    "demo": "npm run build && http-server ./build/default",
+    "postinstall": "polymer install --variants",
+    "start": "polymer serve",
+    "test": "polymer test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thosakwe/cam-snapper.git"
+  },
+  "keywords": [
+    "polymer",
+    "cam",
+    "snapper",
+    "cam",
+    "snapper"
+  ],
+  "author": "Tobe O <thosakwe@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/thosakwe/cam-snapper/issues"
+  },
+  "homepage": "https://github.com/thosakwe/cam-snapper#readme"
+}

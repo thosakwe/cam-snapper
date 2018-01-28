@@ -56,9 +56,16 @@
             <img hidden$="[[!_showImage(image)]]" src$="[[image]]" alt="Captured Image">
             <video id="video" on-tap="_toggleVideo" hidden$="[[_showImage(image)]]" src$="[[image]]" autoplay></video>
         </div>
-        <cam-snapper id="snapper" on-photo="_handleBlob" on-unsupported="_handleUnsupported" on-video="_handleBlob"
-                     facing-mode="environment"
-                     recording="{{recording}}" audio="[[video]]" video="[[video]]"></cam-snapper>
+        <cam-snapper
+                id="snapper"
+                on-photo="_handleBlob"
+                on-unsupported="_handleUnsupported"
+                on-video="_handleBlob"
+                facing-mode="environment"
+                recording="{{recording}}"
+                audio="[[video]]"
+                video="[[video]]">
+        </cam-snapper>
         <br><br>
         <paper-checkbox checked="{{video}}" disabled="[[recording]]"></paper-checkbox>
         Record Video
@@ -151,6 +158,7 @@
         </template>
     </demo-snippet>
 </div>
+
 <div class="vertical-section-container centered">
     <h3>Basic cam-snapper demo</h3>
     <demo-snippet>

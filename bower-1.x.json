@@ -3,10 +3,15 @@
   "description": "Polymer Element that records photo or video from the device's camera.",
   "main": "cam-snapper.html",
   "dependencies": {
-    "polymer": "Polymer/polymer#1.9 - 2"
+    "polymer": "Polymer/polymer#^1.9"
   },
   "devDependencies": {
-    "paper-checkbox": "PolymerElements/paper-checkbox#^2.0.0"
+    "paper-checkbox": "PolymerElements/paper-checkbox#^2.0.0",
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "paper-styles": "PolymerElements/paper-styles#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
   },
   "variants": {
     "1.x": {
@@ -33,5 +38,9 @@
         "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0"
       }
     }
+  },
+  "resolutions": {
+    "hydrolysis": "^1.18",
+    "webcomponentsjs": "^0.7"
   }
 }

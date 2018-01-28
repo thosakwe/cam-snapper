@@ -1,4 +1,9 @@
 {
+  "entrypoint": "index.html",
+  "sources": [
+    "all-imports.html",
+    "cam-snapper.html"
+  ],
   "lint": {
     "rules": [
       "polymer-2-hybrid"

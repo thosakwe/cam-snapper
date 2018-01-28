@@ -7,7 +7,7 @@ Polymer Element that records photo or video from the device&#39;s camera.
 The user sees a video feed of their face, and then once a picture or video is taken, the element
 fires a `Blob` in either a `photo` or `video` event.
 
-If the necessary browser API's are not present, then an `unsupported` event will be fired.
+If the necessary browser API's are not present, then `unsupported` will be set to `true`.
 -->
 <dom-module id="cam-snapper">
     <template>
@@ -21,143 +21,164 @@ If the necessary browser API's are not present, then an `unsupported` event will
     </template>
 
     <script>
-        Polymer({
-            is: 'cam-snapper',
-            properties: {
-                _blobs: {
-                    type: Array,
-                    value: []
-                },
-                /**
-                 * If `true`, then user audio will be requested if recording a video.
-                 */
-                audio: {
-                    type: Boolean,
-                    value: false
-                },
-                /**
-                 * Determines which camera to use. Either `user` (front-facing) or `environment` (rear).
-                 */
-                facingMode: {
-                    type: String,
-                    value: 'user'
-                },
-                /**
-                 * The recording interval for the `MediaRecorder` API.
-                 */
-                interval: {
-                    type: Number,
-                    value: 3000
-                },
-                /**
-                 * Chooses a MIME type for the output `Blob`.
-                 */
-                mimeType: String,
-                /**
-                 * If `true`, then while recording video, the recorded video will be muted. This prevents audio feedback.
-                 */
-                muteWhileRecording: {
-                    type: Boolean,
-                    value: true
-                },
-                /**
-                 * If `true`, then video/photo is being recorded.
-                 */
-                recording: {
-                    type: Boolean,
-                    value: false,
-                    readOnly: true,
-                    notify: true
-                },
-                /**
-                 * Sets the quality of a JPEG or WEBP image.
-                 */
-                quality: Number,
-                /**
-                 * If set to `true`, then a video will be recorded, and not a photo.
-                 */
-                video: {
-                    type: Boolean,
-                    value: false
-                }
-            },
-            _draw: function () {
-                requestAnimationFrame(this._draw.bind(this));
-                var canvas = this.$.canvas;
-                this._ctx.drawImage(this.$.video, 0, 0, canvas.width, canvas.height);
-            },
-            _fireUnsupported: function (e) {
-                this.fire('unsupported', e);
-            },
-            _handleStream: function (stream) {
-                this._setRecording(true);
-                this.$.video.srcObject = this._stream = stream;
-                this.$.video.play();
+      Polymer({
+        is: 'cam-snapper',
 
-                if (!this.video)
-                    return this._draw();
+        /**
+         * Fires when a photo is successfully captured.
+         * @event photo
+         */
 
-                var recorder = this._recorder = new MediaRecorder(stream);
-                recorder.mimeType = this.mimeType || 'video/webm';
+        /**
+         * Fires when a photo is successfully captured.
+         * @event video
+         */
 
-                recorder.ondataavailable = function (e) {
-                    this._blobs.push(e.data);
-                }.bind(this);
+        properties: {
+          _blobs: {
+            type: Array,
+            value: []
+          },
+          /**
+           * If `true`, then user audio will be requested if recording a video.
+           */
+          audio: {
+            type: Boolean,
+            value: false
+          },
+          /**
+           * Determines which camera to use. Either `user` (front-facing) or `environment` (rear).
+           */
+          facingMode: {
+            type: String,
+            value: 'user'
+          },
+          /**
+           * The recording interval for the `MediaRecorder` API.
+           */
+          interval: {
+            type: Number,
+            value: 3000
+          },
+          /**
+           * Chooses a MIME type for the output `Blob`.
+           */
+          mimeType: String,
+          /**
+           * If `true`, then while recording video, the recorded video will be muted. This prevents audio feedback.
+           */
+          muteWhileRecording: {
+            type: Boolean,
+            value: true
+          },
+          /**
+           * If `true`, then video/photo is being recorded.
+           */
+          recording: {
+            type: Boolean,
+            value: false,
+            readOnly: true,
+            notify: true
+          },
+          /**
+           * Sets the quality of a JPEG or WEBP image.
+           */
+          quality: Number,
 
-                recorder.onstop = function () {
-                    var blob = new Blob(this._blobs, {type: this.mimeType || 'video/webm'});
-                    this._setRecording(false);
-                    this._stopTracks();
-                    while (this._blobs.length) this._blobs.pop();
-                    this.fire('video', blob);
-                }.bind(this);
+          /**
+           * Set to `true` if the user agent does not support in-browser recording.
+           */
+          unsupported: {
+            type: Boolean,
+            notify: true,
+            value: false
+          },
 
-                recorder.start(this.interval);
-            },
-            _hideCanvas: function (recording) {
-                return !recording || this.video;
-            },
-            _hideVideo: function (recording) {
-                return !recording || !this.video;
-            },
-            _stopTracks: function () {
-                this.$.video.pause();
-                this.$.video.src = '';
-                if (this._stream) {
-                    var tracks = this._stream.getTracks();
-                    for (var i = 0; i < tracks.length; i++)
-                        tracks[i].stop();
-                }
-            },
-            ready: function () {
-                this._ctx = this.$.canvas.getContext('2d');
-            },
-            /**
-             * Starts the video feed, and records a video if need be.
-             */
-            start: function () {
-                if (!('mediaDevices' in navigator) || !('getUserMedia' in navigator.mediaDevices))
-                    return this._fireUnsupported();
-                else if (this.video && !('MediaRecorder' in window))
-                    return this._fireUnsupported(new Error('Your browser does not support the MediaRecorder API.'));
+          /**
+           * If set to `true`, then a video will be recorded, and not a photo.
+           */
+          video: {
+            type: Boolean,
+            value: false
+          }
+        },
+        _draw: function () {
+          requestAnimationFrame(this._draw.bind(this));
+          var canvas = this.$.canvas;
+          this._ctx.drawImage(this.$.video, 0, 0, canvas.width, canvas.height);
+        },
+        _fireUnsupported: function (e) {
+          this.unsupported = e;
+        },
+        _handleStream: function (stream) {
+          this._setRecording(true);
+          this.$.video.srcObject = this._stream = stream;
+          this.$.video.play();
 
-                var constraints = {video: {facingMode: this.facingMode}, audio: this.audio};
-                navigator.mediaDevices.getUserMedia(constraints)
-                    .then(this._handleStream.bind(this))
-                    .catch(this._fireUnsupported.bind(this));
-            },
-            /**
-             * Stops any active recording, and fires a `photo` or `video` event.
-             */
-            stop: function () {
-                if (!this.video) {
-                    this.$.canvas.toBlob(function (blob) {
-                        this._setRecording(false);
-                        this._stopTracks();
-                        this.fire('photo', blob);
-                    }.bind(this));
-                } else this._recorder.stop();
-            }
-        })
+          if (!this.video)
+            return this._draw();
+
+          var recorder = this._recorder = new MediaRecorder(stream);
+          recorder.mimeType = this.mimeType || 'video/webm';
+
+          recorder.ondataavailable = function (e) {
+            this._blobs.push(e.data);
+          }.bind(this);
+
+          recorder.onstop = function () {
+            var blob = new Blob(this._blobs, {type: this.mimeType || 'video/webm'});
+            this._setRecording(false);
+            this._stopTracks();
+            while (this._blobs.length) this._blobs.pop();
+            this.fire('video', blob);
+          }.bind(this);
+
+          recorder.start(this.interval);
+        },
+        _hideCanvas: function (recording) {
+          return !recording || this.video;
+        },
+        _hideVideo: function (recording) {
+          return !recording || !this.video;
+        },
+        _stopTracks: function () {
+          this.$.video.pause();
+          this.$.video.src = '';
+          if (this._stream) {
+            var tracks = this._stream.getTracks();
+            for (var i = 0; i < tracks.length; i++)
+              tracks[i].stop();
+          }
+        },
+        ready: function () {
+          this._ctx = this.$.canvas.getContext('2d');
+        },
+        /**
+         * Starts the video feed, and records a video if need be.
+         */
+        start: function () {
+          if (!('navigator' in window) || !('mediaDevices' in navigator) || !('getUserMedia' in navigator.mediaDevices))
+            return this._fireUnsupported();
+          else if (this.video && !('MediaRecorder' in window))
+            return this._fireUnsupported(new Error('Your browser does not support the MediaRecorder API.'));
+
+          var constraints = {video: {facingMode: this.facingMode}, audio: this.audio};
+          window.navigator.mediaDevices.getUserMedia(constraints)
+            .then(this._handleStream.bind(this))
+            .catch(this._fireUnsupported.bind(this));
+        },
+        /**
+         * Stops any active recording, and fires a `photo` or `video` event.
+         */
+        stop: function () {
+          if (!this.video) {
+            this.$.canvas.toBlob(function (blob) {
+              this._setRecording(false);
+              this._stopTracks();
+              this.fire('photo', blob);
+            }.bind(this));
+          } else this._recorder.stop();
+        }
+      })
     </script>
 </dom-module>
